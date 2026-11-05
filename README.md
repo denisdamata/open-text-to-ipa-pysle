@@ -6,7 +6,9 @@
   </p>
   
 </div>
-**English text and IPA transcription, together in one readable view**
+<div align="center">
+<strong>**English text and IPA transcription, together in one readable view.</strong>
+</div>
 <div align="center">
   <img src="main.png" alt="Open Text to IPA application window" width="900">
 </div>
