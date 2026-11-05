@@ -1,2 +1,3 @@
 pysle
 setuptools<82
+klembord @ git+https://github.com/OzymandiasTheGreat/klembord.git@b09e7953c6b5411325f03fc24feb11bec95d8517

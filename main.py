@@ -9,10 +9,133 @@ Creates a Tkinter window with a two-panel layout:
 
 from html import escape
 from pathlib import Path
+import klembord
 import tkinter as tk
 import tkinter.font as tkfont
-from tkinter import ttk
+from tkinter import messagebox, ttk
 from transcriber import transcrever_texto_com_estilos
+
+
+def enable_xauthority_wildcard_support():
+    from Xlib import xauth
+
+    original_get_best_auth = xauth.Xauthority.get_best_auth
+    # Xwayland may store Xauthority entries with an empty display number.
+    family_wild = 0xFFFF
+
+    def get_best_auth(
+        authority,
+        family,
+        address,
+        display_number,
+        types=(b"MIT-MAGIC-COOKIE-1",),
+    ):
+        try:
+            return original_get_best_auth(
+                authority, family, address, display_number, types
+            )
+        except xauth.error.XNoAuthError:
+            for entry_family, entry_address, entry_number, name, data in (
+                authority
+            ):
+                if (
+                    entry_family in (family, family_wild)
+                    and (
+                        entry_family == family_wild
+                        or entry_address == address
+                    )
+                    and not entry_number
+                    and name in types
+                ):
+                    return name, data
+            raise
+
+    xauth.Xauthority.get_best_auth = get_best_auth
+
+
+enable_xauthority_wildcard_support()
+
+
+def escape_rtf(text):
+    escaped = []
+    for character in text:
+        if character in "{}\\":
+            escaped.append("\\" + character)
+        elif character == "\n":
+            escaped.append("\\line ")
+        elif character == "\t":
+            escaped.append("\\tab ")
+        elif ord(character) > 127:
+            encoded = character.encode("utf-16-le")
+            for offset in range(0, len(encoded), 2):
+                code_unit = int.from_bytes(encoded[offset:offset + 2], "little")
+                if code_unit >= 0x8000:
+                    code_unit -= 0x10000
+                escaped.append(f"\\u{code_unit}?")
+        else:
+            escaped.append(character)
+    return "".join(escaped)
+
+
+def build_clipboard_content(widget, selection_start, selection_end):
+    plain_text = widget.get(selection_start, selection_end)
+    html_parts = []
+    rtf_parts = []
+    cursor = selection_start
+    bold_ranges = widget.tag_ranges("non_ipa")
+
+    for tag_start, tag_end in zip(bold_ranges[::2], bold_ranges[1::2]):
+        bold_start = (
+            selection_start
+            if widget.compare(tag_start, "<", selection_start)
+            else tag_start
+        )
+        bold_end = (
+            selection_end
+            if widget.compare(tag_end, ">", selection_end)
+            else tag_end
+        )
+        if widget.compare(bold_start, ">=", selection_end):
+            break
+        if widget.compare(bold_end, "<=", cursor):
+            continue
+        if widget.compare(bold_start, "<", cursor):
+            bold_start = cursor
+
+        if widget.compare(cursor, "<", bold_start):
+            text = widget.get(cursor, bold_start)
+            html_parts.append(escape(text))
+            rtf_parts.append(escape_rtf(text))
+        if widget.compare(bold_start, "<", bold_end):
+            text = widget.get(bold_start, bold_end)
+            html_parts.append(f"<strong>{escape(text)}</strong>")
+            rtf_parts.append(f"\\b {escape_rtf(text)}\\b0 ")
+            cursor = bold_end
+
+    if widget.compare(cursor, "<", selection_end):
+        text = widget.get(cursor, selection_end)
+        html_parts.append(escape(text))
+        rtf_parts.append(escape_rtf(text))
+
+    html = (
+        '<html><body><div style="white-space:pre-wrap">'
+        + "".join(html_parts)
+        + "</div></body></html>"
+    )
+    rtf = (
+        r"{\rtf1\ansi\deff0\uc1"
+        r"{\fonttbl{\f0\fnil Arial;}}\pard\f0\fs20 "
+        + "".join(rtf_parts)
+        + "}"
+    )
+    encoded_text = plain_text.encode("utf-8")
+    return {
+        "UTF8_STRING": encoded_text,
+        "text/plain;charset=utf-8": encoded_text,
+        "text/plain": encoded_text,
+        "text/html": html.encode("utf-8"),
+        "text/rtf": rtf.encode("ascii"),
+    }
 
 
 def add_text_context_menu(widget, editable=False, copy_command=None):
@@ -174,29 +297,6 @@ def main():
     output_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(5, 0), pady=5)
     output_scrollbar.pack(side=tk.RIGHT, fill=tk.Y, padx=(0, 5), pady=5)
 
-    clipboard_data = {"plain": "", "html": ""}
-
-    def get_clipboard_chunk(kind, offset, length):
-        offset = int(offset)
-        length = int(length)
-        data_kind = "plain" if kind == "legacy" else kind
-        text = clipboard_data[data_kind][offset:offset + length]
-        encoding = "latin-1" if kind == "legacy" else "utf-8"
-        return text.encode(encoding, errors="replace")
-
-    for target, kind in (
-        ("UTF8_STRING", "plain"),
-        ("STRING", "legacy"),
-        ("text/html", "html"),
-    ):
-        output_text.selection_handle(
-            lambda offset, length, data_kind=kind: get_clipboard_chunk(
-                data_kind, offset, length
-            ),
-            selection="CLIPBOARD",
-            type=target,
-        )
-
     def copy_output_selection():
         try:
             selection_start = output_text.index("sel.first")
@@ -204,49 +304,18 @@ def main():
         except tk.TclError:
             return
 
-        clipboard_data["plain"] = output_text.get(selection_start, selection_end)
-        html_parts = []
-        cursor = selection_start
-        bold_ranges = output_text.tag_ranges("non_ipa")
-
-        for tag_start, tag_end in zip(
-            bold_ranges[::2],
-            bold_ranges[1::2],
-        ):
-            bold_start = (
-                selection_start
-                if output_text.compare(tag_start, "<", selection_start)
-                else tag_start
+        try:
+            klembord.set(
+                build_clipboard_content(
+                    output_text, selection_start, selection_end
+                )
             )
-            bold_end = (
-                selection_end
-                if output_text.compare(tag_end, ">", selection_end)
-                else tag_end
+        except Exception as error:
+            messagebox.showerror(
+                "Clipboard error",
+                f"Could not copy the selection:\n{error}",
+                parent=root,
             )
-            if output_text.compare(bold_start, ">=", selection_end):
-                break
-            if output_text.compare(bold_end, "<=", cursor):
-                continue
-            if output_text.compare(bold_start, "<", cursor):
-                bold_start = cursor
-
-            if output_text.compare(cursor, "<", bold_start):
-                html_parts.append(escape(output_text.get(cursor, bold_start)))
-            if output_text.compare(bold_start, "<", bold_end):
-                bold_text = escape(output_text.get(bold_start, bold_end))
-                html_parts.append(f"<strong>{bold_text}</strong>")
-                cursor = bold_end
-
-        if output_text.compare(cursor, "<", selection_end):
-            html_parts.append(escape(output_text.get(cursor, selection_end)))
-
-        clipboard_data["html"] = (
-            '<html><body><div style="white-space:pre-wrap">'
-            + "".join(html_parts)
-            + "</div></body></html>"
-        )
-        output_text.clipboard_clear()
-        output_text.selection_own(selection="CLIPBOARD")
 
     add_text_context_menu(input_text, editable=True)
     add_text_context_menu(output_text, copy_command=copy_output_selection)

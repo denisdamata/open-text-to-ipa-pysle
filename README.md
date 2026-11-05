@@ -62,6 +62,7 @@ PySLE’s bundled pronunciation data is the ISLE dictionary. See the [ISLEX proj
 - **Long text support**: Scrollable input and transcription panels for longer passages
 - **Preserved formatting**: Existing spaces and line breaks are kept in the transcription
 - **Readable output**: Original text is bolded to distinguish it from IPA
+- **Rich clipboard**: Uses [Klembord](https://github.com/OzymandiasTheGreat/klembord)'s X11 clipboard support to copy long selections as plain text, HTML, and RTF
 - **Stress marking**: Stressed syllables are always marked with `ˈ` or `ˌ`
 - **Unknown words**: Original words are kept without bracketed IPA placeholders
 - **Offline**: Uses PySLE locally; no AI service or network connection is used at runtime
@@ -72,6 +73,7 @@ PySLE’s bundled pronunciation data is the ISLE dictionary. See the [ISLEX proj
 - Python 3.11+
 - Tkinter (part of Python standard library on Linux)
 - PySLE engine (installed via `requirements.txt`)
+- Klembord (X11 clipboard access; installed via `requirements.txt`)
 
 ## Troubleshooting
 
