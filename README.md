@@ -1,5 +1,9 @@
 # Open Text to IPA — PySLE
 
+<div align="center">
+  <img src="img.png"  width="900">
+</div>
+
 A free, offline desktop application for transcribing English text into IPA alongside the original text. It uses **PySLE** as its pronunciation and phonetic transcription engine.
 
 ## Project intent and attribution
