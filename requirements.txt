@@ -1,0 +1,2 @@
+pysle
+setuptools<82
