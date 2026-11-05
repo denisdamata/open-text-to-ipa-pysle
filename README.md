@@ -1,16 +1,26 @@
-# Open Text to IPA — PySLE
+# <img src="icon.png" alt="" width="28" align="center"> Open Text to IPA — PySLE
 
 <div align="center">
-  <img src="img.png"  width="900">
+  <img src="main.png" alt="Open Text to IPA application window" width="900">
 </div>
 
-A free, offline desktop application for transcribing English text into IPA alongside the original text. It uses **PySLE** as its pronunciation and phonetic transcription engine.
+A free, offline desktop application for practical English-to-IPA transcription. It displays the original text alongside its transcription and uses **PySLE** as its pronunciation and phonetic engine.
 
 ## Project intent and attribution
 
-This project was developed with AI assistance throughout. Its distinctive contribution is the simple side-by-side interface and support for transcribing long passages into readable English scripts; the pronunciation data and phonetic engine come from PySLE, not from a new AI model.
+This project is intended as a practical, free-to-use tool, not as an educational product. It was developed with AI assistance. Its contribution is a simple side-by-side interface for transcribing long passages while preserving their formatting; pronunciation data and phonetic processing come from the cited PySLE engine and ISLE dictionary.
 
-The goal is to offer a free, local alternative for the combined text-and-transcription workflow found on [toIPA.org](https://toipa.org/). This project is independent and is not affiliated with toIPA.org.
+The goal is to offer a free, local alternative for the combined text-and-transcription workflow found on [toIPA.org](https://toipa.org/text-to-ipa/en-US/). This project is independent and is not affiliated with toIPA.org.
+
+The `lingose` Python package was also considered, but it does not provide the syllable boundaries and stress marks required for this app. PySLE was selected because syllabic separation and lexical stress are essential to the intended output.
+
+### Engine citation
+
+The phonetic engine is **PySLE**, a Python interface to the ISLE pronunciation dictionary. Its author describes the package as an interface to a pronunciation dictionary with stress markings and tools for working with pronunciations.
+
+> Mahrt, T. (2016). *Pysle*. https://github.com/timmahrt/pysle
+
+PySLE’s bundled pronunciation data is the ISLE dictionary. See the [ISLEX project](https://github.com/uiuc-sst/g2ps) for the dictionary source and its attribution.
 
 ## Installation
 
@@ -66,7 +76,7 @@ If the Transcribe button reports an error, make sure PySLE is installed in the s
 
 ## License
 
-This project is a simple educational application for IPA transcription using pysle.
+This application is free to use. PySLE and its pronunciation data are separate upstream projects; refer to their sources for attribution and licensing information.
 
 ---
 

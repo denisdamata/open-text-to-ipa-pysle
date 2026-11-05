@@ -7,6 +7,7 @@ Creates a Tkinter window with a two-panel layout:
 - One 'Transcribe' button below the input area
 """
 
+from pathlib import Path
 import tkinter as tk
 from tkinter import ttk
 from transcriber import transcrever_texto
@@ -33,6 +34,8 @@ def main():
     root = tk.Tk()
     root.title("Open Text to IPA")
     root.geometry("800x500")
+    icon = tk.PhotoImage(file=Path(__file__).with_name("icon.png"))
+    root.iconphoto(True, icon)
     
     # Create a frame for the two panels
     main_frame = ttk.Frame(root, padding="10")
