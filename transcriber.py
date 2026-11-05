@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Transcriber module for the Open Text to IPA PYSLE application.
-Handles text tokenization, pysle lookup, and IPA formatting.
+Handles text tokenization, pronunciation formatting, and text-level output.
 
 Core functions:
 - ipa_palavra(palavra, silabas: bool) -> str — returns the IPA for a word
@@ -10,16 +10,14 @@ Core functions:
 - transcrever_texto(texto, modo, silabas) -> str — orchestrates the output
   in both modes.
 - Handling of unknown words: keep the original word in brackets `[palavra]`.
-- In-memory cache (`dict`) to avoid repeated `pysle` lookups in the same session.
+- In-memory cache (`dict`) to avoid repeated pronunciation lookups in the same session.
 """
 
 import re
 import unicodedata
-from pysle.isletool import Isle
-from pysle.utilities.errors import WordNotInIsleError
+from isle_dictionary import lookup_syllables
 
 
-_isle = Isle()
 _translation_cache: dict[tuple[str, bool], str] = {}
 _WORD_PATTERN = re.compile(r"^([^\w]*)([\w]+(?:['’][\w]+|-[\w]+)*)([^\w]*)$")
 
@@ -48,29 +46,25 @@ def ipa_palavra(palavra: str, silabas: bool = False) -> str:
         return prefix + _translation_cache[cache_key] + suffix
 
     try:
-        entries = _isle.lookup(word)
-    except WordNotInIsleError:
-        result = f"[{word}]"
+        syllables = lookup_syllables(word)
     except Exception:
         result = f"[erro: {word}]"
     else:
-        if not entries:
+        if syllables is None:
             result = f"[{word}]"
         else:
-            entry = entries[0]
-
-            syllables = []
-            for syllable in entry.syllabificationList[0].syllables:
+            formatted_syllables = []
+            for syllable in syllables:
                 marker = ""
-                phonemes = []
-                for phoneme in syllable.phonemes:
+                syllable_phonemes = []
+                for phoneme in syllable:
                     if "ˈ" in phoneme or "ˌ" in phoneme:
                         marker = "ˈ" if "ˈ" in phoneme else "ˌ"
                         phoneme = phoneme.replace("ˈ", "").replace("ˌ", "")
-                    phonemes.append(phoneme)
-                syllables.append(marker + "".join(phonemes))
+                    syllable_phonemes.append(phoneme)
+                formatted_syllables.append(marker + "".join(syllable_phonemes))
 
-            result = ("." if silabas else "").join(syllables)
+            result = ("." if silabas else "").join(formatted_syllables)
 
     _translation_cache[cache_key] = result
     return prefix + result + suffix
