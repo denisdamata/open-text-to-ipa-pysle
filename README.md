@@ -1,10 +1,7 @@
-<table width="100%" align="center">
-  <tr>
-    <td width="10%"><img src="icon.png" alt="" align="center"></td>
-    <td width="80%" align="center"><h1> Open Text to IPA</h1></td>
-    <td width="10%" align="center"><strong>🐧 LINUX</strong></td>
-  
-</table>
+<h1 align="center">
+  <img src="icon.png" alt="" width="42" align="center"> Open Text to IPA
+  <img src="https://img.shields.io/badge/OS-Linux%20only-FCC624?logo=linux&logoColor=black" alt="Linux only" align="right">
+</h1>
 
 <p align="center"><strong>English text and IPA transcription, together in one readable view.</strong></p>
 
