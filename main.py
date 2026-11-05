@@ -13,14 +13,45 @@ from tkinter import ttk
 from transcriber import transcrever_texto
 
 
-def add_text_context_menu(widget, include_edit_actions=False):
+def add_text_context_menu(widget, editable=False):
     menu = tk.Menu(widget, tearoff=False)
-    if include_edit_actions:
+
+    if editable:
+        menu.add_command(label="Undo", command=lambda: widget.event_generate("<<Undo>>"))
+        menu.add_command(label="Redo", command=lambda: widget.event_generate("<<Redo>>"))
+        menu.add_separator()
+
         menu.add_command(label="Cut", command=lambda: widget.event_generate("<<Cut>>"))
         menu.add_command(label="Paste", command=lambda: widget.event_generate("<<Paste>>"))
         menu.add_separator()
+
     menu.add_command(label="Copy", command=lambda: widget.event_generate("<<Copy>>"))
-    menu.add_command(label="Select All", command=lambda: widget.tag_add("sel", "1.0", "end-1c"))
+
+    def select_all():
+        widget.tag_add("sel", "1.0", "end-1c")
+        widget.mark_set(tk.INSERT, "end-1c")
+
+    menu.add_command(label="Select All", command=select_all)
+
+    shortcuts = {
+        "<Control-a>": select_all,
+        "<Control-c>": lambda: widget.event_generate("<<Copy>>"),
+    }
+    if editable:
+        shortcuts.update({
+            "<Control-x>": lambda: widget.event_generate("<<Cut>>"),
+            "<Control-v>": lambda: widget.event_generate("<<Paste>>"),
+            "<Control-z>": lambda: widget.event_generate("<<Undo>>"),
+            "<Control-y>": lambda: widget.event_generate("<<Redo>>"),
+            "<Control-Shift-z>": lambda: widget.event_generate("<<Redo>>"),
+        })
+
+    def run_shortcut(action):
+        action()
+        return "break"
+
+    for sequence, command in shortcuts.items():
+        widget.bind(sequence, lambda event, action=command: run_shortcut(action))
 
     def show_menu(event):
         widget.focus_set()
@@ -51,7 +82,10 @@ def main():
     input_frame.grid(row=0, column=0, sticky="nsew")
     
     # Text widget for input
-    input_text = tk.Text(input_frame, wrap=tk.WORD, height=10, width=50)
+    input_text = tk.Text(
+        input_frame, wrap=tk.WORD, height=10, width=50,
+        undo=True, autoseparators=True, maxundo=-1
+    )
     input_scrollbar = ttk.Scrollbar(
         input_frame, orient=tk.VERTICAL, command=input_text.yview
     )
@@ -131,7 +165,7 @@ def main():
     output_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(5, 0), pady=5)
     output_scrollbar.pack(side=tk.RIGHT, fill=tk.Y, padx=(0, 5), pady=5)
 
-    add_text_context_menu(input_text, include_edit_actions=True)
+    add_text_context_menu(input_text, editable=True)
     add_text_context_menu(output_text)
     
     # Configure grid weights for resizing

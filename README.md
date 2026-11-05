@@ -1,10 +1,16 @@
-# <img src="icon.png" alt="" width="40" align="center"> Open Text to IPA — PySLE
+<table width="100%">
+  <tr>
+    <td width="20%"></td>
+    <td align="center"><h1><img src="icon.png" alt="" width="42" align="center"> Open Text to IPA</h1></td>
+    <td width="20%" align="right"><strong>🐧 LINUX</strong></td>
+  </tr>
+</table>
+
+<p align="center"><strong>English text and IPA transcription, together in one readable view.</strong></p>
 
 <div align="center">
   <img src="main.png" alt="Open Text to IPA application window" width="900">
 </div>
-
-A free, offline desktop application for practical English-to-IPA transcription. It displays the original text alongside its transcription and uses **PySLE** as its pronunciation and phonetic engine.
 
 ## Project intent and attribution
 
@@ -48,7 +54,11 @@ PySLE’s bundled pronunciation data is the ISLE dictionary. See the [ISLEX proj
    - **Transcription only**: A single continuous IPA line for the whole text
 3. "Syllable division" is enabled by default; uncheck it to remove dot separators between syllables.
 4. Click "Transcribe" to convert the text to IPA.
-5. Right-click the output to copy selected text or select all. Right-click the input for cut, copy, paste, and select-all actions.
+5. Use standard shortcuts in the input:
+   - **Ctrl+A**: Select all
+   - **Ctrl+C / Ctrl+X / Ctrl+V**: Copy / cut / paste
+   - **Ctrl+Z / Ctrl+Y**: Undo / redo
+6. In the output, **Ctrl+A** selects all and **Ctrl+C** copies the selection. Right-click either text area for its available editing actions.
 
 ## Features
 
