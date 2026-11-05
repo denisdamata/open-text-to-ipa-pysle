@@ -1,4 +1,4 @@
-# <img src="icon.png" alt="" width="28" align="center"> Open Text to IPA — PySLE
+# <img src="icon.png" alt="" width="40" align="center"> Open Text to IPA — PySLE
 
 <div align="center">
   <img src="main.png" alt="Open Text to IPA application window" width="900">
@@ -77,13 +77,3 @@ If the Transcribe button reports an error, make sure PySLE is installed in the s
 ## License
 
 This application is free to use. PySLE and its pronunciation data are separate upstream projects; refer to their sources for attribution and licensing information.
-
----
-
-**Project Structure:**
-```
-open_text_to_ipa_pysle/
-├── main.py          # GUI with two-panel layout
-├── transcriber.py   # IPA transcription logic
-└── README.md        # Installation and usage
-```
