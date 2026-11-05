@@ -1,14 +1,15 @@
 <div align="center">
   <p>
     <img src="icon.png" alt="" width="42" align="center">
-    <strong><big>Open Text to IPA</big></strong>
+    <strong><h1>Open Text to IPA</h1></strong>
     <img src="https://img.shields.io/badge/OS-Linux%20only-FCC624?logo=linux&logoColor=black" alt="Linux only" align="right">
   </p>
   
 </div>
 <div align="center">
-<strong>**English text and IPA transcription, together in one readable view.</strong>
+<strong>English text and IPA transcription, together in one readable view.</strong>
 </div>
+
 <div align="center">
   <img src="main.png" alt="Open Text to IPA application window" width="900">
 </div>
