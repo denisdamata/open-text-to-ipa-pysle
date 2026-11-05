@@ -95,6 +95,10 @@ def transcrever_texto_com_estilos(
             if ipa == f"{prefix}[{word}]{suffix}":
                 styled_parts.append((part, True))
                 continue
+            if ipa.startswith(prefix) and (not suffix or ipa.endswith(suffix)):
+                ipa = ipa[len(prefix):]
+                if suffix:
+                    ipa = ipa[:-len(suffix)]
         else:
             prefix = suffix = ""
 
@@ -107,6 +111,7 @@ def transcrever_texto_com_estilos(
                     character
                     for character in ipa
                     if not unicodedata.category(character).startswith("P")
+                    or (character == "." and silabas)
                 )
                 ipa_is_transcription = True
             styled_parts.append((part, True))
@@ -116,12 +121,9 @@ def transcrever_texto_com_estilos(
         elif ipa.startswith("[erro:"):
             styled_parts.append((ipa, True))
         elif ipa != part and word_match:
-            transcription = ipa[len(prefix):]
-            if suffix:
-                transcription = transcription[:-len(suffix)]
             styled_parts.extend((
                 (prefix, True),
-                (transcription, False),
+                (ipa, False),
                 (suffix, True),
             ))
         else:

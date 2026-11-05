@@ -47,7 +47,7 @@ PySLE’s bundled pronunciation data is the ISLE dictionary. See the [ISLEX proj
 
 1. Paste English text into the left text area.
 2. Choose a transcription mode (the default is **Word by word**):
-   - **Word by word**: Each original word is followed by its IPA transcription in `/slashes/`; punctuation and syllable dots are omitted from the IPA
+   - **Word by word**: Each original word is followed by its IPA transcription in `/slashes/`; punctuation is omitted, while syllable dots follow the checkbox setting
    - **Transcription only**: A single continuous IPA line for the whole text
 3. "Syllable division" is enabled by default; uncheck it to remove dot separators between syllables.
 4. Click "Transcribe" to convert the text to IPA.
