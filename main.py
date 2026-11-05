@@ -7,14 +7,17 @@ Creates a Tkinter window with a two-panel layout:
 - One 'Transcribe' button below the input area
 """
 
+from html import escape
 from pathlib import Path
 import tkinter as tk
+import tkinter.font as tkfont
 from tkinter import ttk
-from transcriber import transcrever_texto
+from transcriber import transcrever_texto_com_estilos
 
 
-def add_text_context_menu(widget, editable=False):
+def add_text_context_menu(widget, editable=False, copy_command=None):
     menu = tk.Menu(widget, tearoff=False)
+    copy = copy_command or (lambda: widget.event_generate("<<Copy>>"))
 
     if editable:
         menu.add_command(label="Undo", command=lambda: widget.event_generate("<<Undo>>"))
@@ -25,7 +28,7 @@ def add_text_context_menu(widget, editable=False):
         menu.add_command(label="Paste", command=lambda: widget.event_generate("<<Paste>>"))
         menu.add_separator()
 
-    menu.add_command(label="Copy", command=lambda: widget.event_generate("<<Copy>>"))
+    menu.add_command(label="Copy", command=copy)
 
     def select_all():
         widget.tag_add("sel", "1.0", "end-1c")
@@ -35,7 +38,7 @@ def add_text_context_menu(widget, editable=False):
 
     shortcuts = {
         "<Control-a>": select_all,
-        "<Control-c>": lambda: widget.event_generate("<<Copy>>"),
+        "<Control-c>": copy,
     }
     if editable:
         shortcuts.update({
@@ -134,13 +137,16 @@ def main():
         syllabus = syllabus_var.get()
         
         try:
-            result = transcrever_texto(text, mode, syllabus)
+            result = transcrever_texto_com_estilos(text, mode, syllabus)
         except Exception as e:
-            result = f"[erro: {str(e)}]"
+            result = [(f"[erro: {str(e)}]", True)]
 
         output_text.configure(state=tk.NORMAL)
         output_text.delete("1.0", tk.END)
-        output_text.insert(tk.END, result)
+        for fragment, is_non_ipa in result:
+            output_text.insert(
+                tk.END, fragment, "non_ipa" if is_non_ipa else ()
+            )
         output_text.configure(state=tk.DISABLED)
     
     transcribe_button = ttk.Button(
@@ -158,6 +164,9 @@ def main():
     output_text = tk.Text(
         output_frame, wrap=tk.WORD, height=10, width=50, state=tk.DISABLED
     )
+    bold_font = tkfont.nametofont("TkTextFont").copy()
+    bold_font.configure(weight="bold")
+    output_text.tag_configure("non_ipa", font=bold_font)
     output_scrollbar = ttk.Scrollbar(
         output_frame, orient=tk.VERTICAL, command=output_text.yview
     )
@@ -165,8 +174,82 @@ def main():
     output_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(5, 0), pady=5)
     output_scrollbar.pack(side=tk.RIGHT, fill=tk.Y, padx=(0, 5), pady=5)
 
+    clipboard_data = {"plain": "", "html": ""}
+
+    def get_clipboard_chunk(kind, offset, length):
+        offset = int(offset)
+        length = int(length)
+        data_kind = "plain" if kind == "legacy" else kind
+        text = clipboard_data[data_kind][offset:offset + length]
+        encoding = "latin-1" if kind == "legacy" else "utf-8"
+        return text.encode(encoding, errors="replace")
+
+    for target, kind in (
+        ("UTF8_STRING", "plain"),
+        ("STRING", "legacy"),
+        ("text/html", "html"),
+    ):
+        output_text.selection_handle(
+            lambda offset, length, data_kind=kind: get_clipboard_chunk(
+                data_kind, offset, length
+            ),
+            selection="CLIPBOARD",
+            type=target,
+        )
+
+    def copy_output_selection():
+        try:
+            selection_start = output_text.index("sel.first")
+            selection_end = output_text.index("sel.last")
+        except tk.TclError:
+            return
+
+        clipboard_data["plain"] = output_text.get(selection_start, selection_end)
+        html_parts = []
+        cursor = selection_start
+        bold_ranges = output_text.tag_ranges("non_ipa")
+
+        for tag_start, tag_end in zip(
+            bold_ranges[::2],
+            bold_ranges[1::2],
+        ):
+            bold_start = (
+                selection_start
+                if output_text.compare(tag_start, "<", selection_start)
+                else tag_start
+            )
+            bold_end = (
+                selection_end
+                if output_text.compare(tag_end, ">", selection_end)
+                else tag_end
+            )
+            if output_text.compare(bold_start, ">=", selection_end):
+                break
+            if output_text.compare(bold_end, "<=", cursor):
+                continue
+            if output_text.compare(bold_start, "<", cursor):
+                bold_start = cursor
+
+            if output_text.compare(cursor, "<", bold_start):
+                html_parts.append(escape(output_text.get(cursor, bold_start)))
+            if output_text.compare(bold_start, "<", bold_end):
+                bold_text = escape(output_text.get(bold_start, bold_end))
+                html_parts.append(f"<strong>{bold_text}</strong>")
+                cursor = bold_end
+
+        if output_text.compare(cursor, "<", selection_end):
+            html_parts.append(escape(output_text.get(cursor, selection_end)))
+
+        clipboard_data["html"] = (
+            '<html><body><div style="white-space:pre-wrap">'
+            + "".join(html_parts)
+            + "</div></body></html>"
+        )
+        output_text.clipboard_clear()
+        output_text.selection_own(selection="CLIPBOARD")
+
     add_text_context_menu(input_text, editable=True)
-    add_text_context_menu(output_text)
+    add_text_context_menu(output_text, copy_command=copy_output_selection)
     
     # Configure grid weights for resizing
     main_frame.columnconfigure(0, weight=1)

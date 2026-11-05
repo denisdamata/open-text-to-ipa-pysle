@@ -14,6 +14,7 @@ Core functions:
 """
 
 import re
+import unicodedata
 from pysle.isletool import Isle
 from pysle.utilities.errors import WordNotInIsleError
 
@@ -75,6 +76,60 @@ def ipa_palavra(palavra: str, silabas: bool = False) -> str:
     return prefix + result + suffix
 
 
+def transcrever_texto_com_estilos(
+    texto: str, modo: str = "transcription only", silabas: bool = False
+) -> list[tuple[str, bool]]:
+    """Return output fragments paired with whether they are non-IPA text."""
+    parts = re.split(r"(\s+)", texto)
+    styled_parts = []
+
+    for part in parts:
+        if not part or part.isspace():
+            styled_parts.append((part, False))
+            continue
+
+        ipa = ipa_palavra(part, silabas)
+        word_match = _WORD_PATTERN.fullmatch(part)
+        if word_match:
+            prefix, word, suffix = word_match.groups()
+            if ipa == f"{prefix}[{word}]{suffix}":
+                styled_parts.append((part, True))
+                continue
+        else:
+            prefix = suffix = ""
+
+        if modo == "word by word" and ipa != part:
+            if ipa.startswith("[") and "]" in ipa:
+                ipa = ipa[:ipa.index("]") + 1]
+                ipa_is_transcription = False
+            else:
+                ipa = "".join(
+                    character
+                    for character in ipa
+                    if not unicodedata.category(character).startswith("P")
+                )
+                ipa_is_transcription = True
+            styled_parts.append((part, True))
+            styled_parts.append((" /", False))
+            styled_parts.append((ipa, not ipa_is_transcription))
+            styled_parts.append(("/", False))
+        elif ipa.startswith("[erro:"):
+            styled_parts.append((ipa, True))
+        elif ipa != part and word_match:
+            transcription = ipa[len(prefix):]
+            if suffix:
+                transcription = transcription[:-len(suffix)]
+            styled_parts.extend((
+                (prefix, True),
+                (transcription, False),
+                (suffix, True),
+            ))
+        else:
+            styled_parts.append((ipa, True))
+
+    return styled_parts
+
+
 def transcrever_texto(texto: str, modo: str = "transcription only", silabas: bool = False) -> str:
     """
     Orchestrates the IPA transcription output in both modes.
@@ -88,21 +143,12 @@ def transcrever_texto(texto: str, modo: str = "transcription only", silabas: boo
     Returns:
         The formatted output string based on the selected mode.
     """
-    parts = re.split(r"(\s+)", texto)
-    output_parts = []
-
-    for part in parts:
-        if not part or part.isspace():
-            output_parts.append(part)
-            continue
-
-        ipa = ipa_palavra(part, silabas)
-        if modo == "word by word" and ipa != part:
-            output_parts.append(f"{part} {ipa}")
-        else:
-            output_parts.append(ipa)
-
-    return "".join(output_parts)
+    return "".join(
+        fragment
+        for fragment, _is_non_ipa in transcrever_texto_com_estilos(
+            texto, modo, silabas
+        )
+    )
 
 
 if __name__ == "__main__":

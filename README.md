@@ -47,7 +47,7 @@ PySLE’s bundled pronunciation data is the ISLE dictionary. See the [ISLEX proj
 
 1. Paste English text into the left text area.
 2. Choose a transcription mode (the default is **Word by word**):
-   - **Word by word**: Each word and its IPA transcription appear together on the same line
+   - **Word by word**: Each original word is followed by its IPA transcription in `/slashes/`; punctuation and syllable dots are omitted from the IPA
    - **Transcription only**: A single continuous IPA line for the whole text
 3. "Syllable division" is enabled by default; uncheck it to remove dot separators between syllables.
 4. Click "Transcribe" to convert the text to IPA.
@@ -55,14 +55,15 @@ PySLE’s bundled pronunciation data is the ISLE dictionary. See the [ISLEX proj
    - **Ctrl+A**: Select all
    - **Ctrl+C / Ctrl+X / Ctrl+V**: Copy / cut / paste
    - **Ctrl+Z / Ctrl+Y**: Undo / redo
-6. In the output, **Ctrl+A** selects all and **Ctrl+C** copies the selection. Right-click either text area for its available editing actions.
+6. In the output, **Ctrl+A** selects all and **Ctrl+C** copies the selection. Bold formatting is included when pasting into rich-text apps; plain-text apps receive unformatted text. Right-click either text area for its available editing actions.
 
 ## Features
 
 - **Long text support**: Scrollable input and transcription panels for longer passages
 - **Preserved formatting**: Existing spaces and line breaks are kept in the transcription
+- **Readable output**: Original text is bolded to distinguish it from IPA
 - **Stress marking**: Stressed syllables are always marked with `ˈ` or `ˌ`
-- **Error handling**: Unknown words are shown in brackets `[word]`
+- **Unknown words**: Original words are kept without bracketed IPA placeholders
 - **Offline**: Uses PySLE locally; no AI service or network connection is used at runtime
 - **Cache**: In-memory cache prevents repeated lookups in the same session
 
