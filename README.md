@@ -2,7 +2,7 @@
   <img src="icon.png" alt="" width="42" align="center"> Open Text to IPA
   <img src="https://img.shields.io/badge/OS-Linux%20only-FCC624?logo=linux&logoColor=black" alt="Linux only" align="right">
   <br>
-  <small>English text and IPA transcription, together in one readable view.</small>
+  <small><small>English text and IPA transcription, together in one readable view.</small></small>
 </h1>
 
 <div align="center">
