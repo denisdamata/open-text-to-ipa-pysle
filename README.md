@@ -2,8 +2,8 @@
   <tr>
     <td width="10%"><img src="icon.png" alt="" align="center"></td>
     <td width="80%" align="center"><h1> Open Text to IPA</h1></td>
-    <td width="10%" align="right"><strong>🐧 LINUX</strong></td>
-  </tr>
+    <td width="10%" align="center"><strong>🐧 LINUX</strong></td>
+  
 </table>
 
 <p align="center"><strong>English text and IPA transcription, together in one readable view.</strong></p>
