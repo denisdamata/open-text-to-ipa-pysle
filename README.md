@@ -1,6 +1,6 @@
 <table width="100%" align="center">
   <tr>
-    <td width="10%"><img src="icon.png" alt="" width="42" align="center"></td>
+    <td width="10%"><img src="icon.png" alt="" align="center"></td>
     <td width="80%" align="center"><h1> Open Text to IPA</h1></td>
     <td width="10%" align="right"><strong>🐧 LINUX</strong></td>
   </tr>
