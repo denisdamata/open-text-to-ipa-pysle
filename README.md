@@ -1,8 +1,8 @@
-<table width="100%">
+<table width="80%" align="center">
   <tr>
-    <td width="20%"></td>
-    <td align="center"><h1><img src="icon.png" alt="" width="42" align="center"> Open Text to IPA</h1></td>
-    <td width="20%" align="right"><strong>🐧 LINUX</strong></td>
+    <td width="33%"></td>
+    <td width="34%" align="center"><h1><img src="icon.png" alt="" width="42" align="center"> Open Text to IPA</h1></td>
+    <td width="33%" align="right"><strong>🐧 LINUX</strong></td>
   </tr>
 </table>
 
