@@ -9,21 +9,25 @@
   <img src="main.png" alt="Open Text to IPA application window" width="900">
 </div>
 
-## Project intent and attribution
+## Project intent and sources
 
-This project is intended as a practical, free-to-use tool, not as an educational product. It was developed with AI assistance. Its contribution is a simple side-by-side interface for transcribing long passages while preserving their formatting; pronunciation data and phonetic processing come from the cited PySLE engine and ISLE dictionary.
+This project is a practical, free-to-use tool, not an educational product. It was developed with AI assistance. Its contribution is a simple side-by-side interface for transcribing long passages while preserving their formatting; pronunciation lookup is provided by PySLE using the ISLEdict pronunciation data.
 
 The goal is to offer a free, local alternative for the combined text-and-transcription workflow found on [toIPA.org](https://toipa.org/text-to-ipa/en-US/). This project is independent and is not affiliated with toIPA.org.
 
 The `lingose` Python package was also considered, but it does not provide the syllable boundaries and stress marks required for this app. PySLE was selected because syllabic separation and lexical stress are essential to the intended output.
 
-### Engine citation
+### Pronunciation engine and dictionary
 
-The phonetic engine is **PySLE**, a Python interface to the ISLE pronunciation dictionary. Its author describes the package as an interface to a pronunciation dictionary with stress markings and tools for working with pronunciations.
+**PySLE** is the Python library used to look up pronunciations and syllable/stress information:
 
-> Mahrt, T. (2016). *Pysle*. https://github.com/timmahrt/pysle
+> Mahrt, T. (2016). *Pysle*. [Source repository](https://github.com/timmahrt/pysle).
 
-PySLE’s bundled pronunciation data is the ISLE dictionary. See the [ISLEX project](https://github.com/uiuc-sst/g2ps) for the dictionary source and its attribution.
+The pronunciation data comes from **ISLEdict**, bundled with PySLE. PySLE's [ISLEdict attribution and license note](https://github.com/timmahrt/pysle#isle-dictionary) identifies it as copyright Mark Hasegawa-Johnson and licensed under the MIT license. The direct [English ISLEdict source file](https://raw.githubusercontent.com/uiuc-sst/g2ps/master/English/ISLEdict.txt) is maintained in the [ISLEX/G2P project](https://github.com/uiuc-sst/g2ps).
+
+### Clipboard library
+
+The application uses [Klembord](https://github.com/OzymandiasTheGreat/klembord/tree/b09e7953c6b5411325f03fc24feb11bec95d8517) for rich clipboard access on Linux.
 
 ## Installation
 
@@ -86,4 +90,4 @@ If the Transcribe button reports an error, make sure PySLE is installed in the s
 
 ## License
 
-This application is free to use. PySLE and its pronunciation data are separate upstream projects; refer to their sources for attribution and licensing information.
+This application is free to use. PySLE, ISLEdict, and Klembord are separate upstream projects; refer to the sources above for their respective licenses and attribution.
